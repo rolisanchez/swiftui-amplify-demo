@@ -9,7 +9,7 @@
 **/.idea
 
 ## Ignore .plist with sensitive data
-SwiftUIAmplifyDemo/Info.plist
+# SwiftUIAmplifyDemo/Info.plist
 
 ## User settings
 xcuserdata/
