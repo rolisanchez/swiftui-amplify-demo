@@ -42,7 +42,16 @@ struct SignInViewController: UIViewControllerRepresentable {
 // MARK: Sign In With Google Extension
 extension SignInViewController {
     func signInWithGoogle() {
-        let hostedUIOptions = HostedUIOptions(scopes: ["openid", "email", "profile"], identityProvider: "Google")
+        signInWithIdentityProvider(with: "Google")
+    }
+    
+    func signInWithFacebook() {
+        signInWithIdentityProvider(with: "Facebook")
+    }
+    
+    func signInWithIdentityProvider(with provider: String) {
+        let hostedUIOptions = HostedUIOptions(scopes: ["openid", "email", "profile"], identityProvider: provider)
+
         AWSMobileClient.default().showSignIn(navigationController: navController, hostedUIOptions: hostedUIOptions) { (userState, error) in
             if let error = error as? AWSMobileClientError {
                 print(error)
@@ -67,10 +76,44 @@ extension SignInViewController {
                                 self.settings.username = username
                             }
                         }
+                        
+                        if provider == "Facebook", let picture = claims?["picture"], let pictureJsonStr = picture as? String, let fbPictureURL = self.parseFBImage(from: pictureJsonStr) {
+                            print("Do something with fbPictureURL: ", fbPictureURL)
+                        }
                     }
                 }
             }
             
         }
     }
+    
+    func parseFBImage(from jsonStr: String) -> String? {
+        let decoder = JSONDecoder()
+        guard let jsonData = jsonStr.data(using: .utf8) else {
+            print("Could not get data")
+            return nil
+        }
+        if let fbImage = try? decoder.decode(FBImage.self, from: jsonData) {
+            let fbImageData = fbImage.data
+            let urlString = fbImageData.url
+            print("urlString \(urlString)")
+            return urlString
+            
+        } else {
+            print("error decoding")
+            return nil
+        }
+    }
+    
+    struct FBImage: Codable {
+        var data: FBImageData
+    }
+    
+    struct FBImageData: Codable {
+        var height: Int
+        var width: Int
+        var is_silhouette: Bool
+        var url: String
+    }
+
 }

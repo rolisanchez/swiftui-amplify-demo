@@ -37,6 +37,12 @@ struct ContentView: View {
                     }
                     Divider()
                     Button(action: {
+                        signInVC.signInWithFacebook()
+                    }) {
+                        Text("Sign In with Facebook")
+                    }
+                    Divider()
+                    Button(action: {
                         AWSMobileClient.default().signOut()
                         self.settings.username = ""
                     }) {
