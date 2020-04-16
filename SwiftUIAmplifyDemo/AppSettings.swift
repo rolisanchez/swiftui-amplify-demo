@@ -33,7 +33,7 @@ final class AppSettings: ObservableObject {
     private enum SettingKey: String {
         case username
     }
-    
+     
     let objectWillChange = ObservableObjectPublisher()
     
     @UserDefault(SettingKey.username.rawValue, defaultValue: "")

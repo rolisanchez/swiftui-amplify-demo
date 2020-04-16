@@ -49,6 +49,10 @@ extension SignInViewController {
         signInWithIdentityProvider(with: "Facebook")
     }
     
+    func signInWithApple() {
+        signInWithIdentityProvider(with: "SignInWithApple")
+    }
+    
     func signInWithIdentityProvider(with provider: String) {
         let hostedUIOptions = HostedUIOptions(scopes: ["openid", "email", "profile"], identityProvider: provider)
 
@@ -79,7 +83,10 @@ extension SignInViewController {
                         
                         if provider == "Facebook", let picture = claims?["picture"], let pictureJsonStr = picture as? String, let fbPictureURL = self.parseFBImage(from: pictureJsonStr) {
                             print("Do something with fbPictureURL: ", fbPictureURL)
+                        } else if provider == "SignInWithApple" {
+                            print("Ignore Apple's Picture")
                         }
+                        
                     }
                 }
             }

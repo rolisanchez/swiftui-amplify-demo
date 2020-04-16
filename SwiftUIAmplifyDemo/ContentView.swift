@@ -38,8 +38,15 @@ struct ContentView: View {
                     Divider()
                     Button(action: {
                         signInVC.signInWithFacebook()
+//                        signInVC.signInWithIdentityProvider(with: "Facebook")
                     }) {
                         Text("Sign In with Facebook")
+                    }
+                    Divider()
+                    Button(action: {
+                        signInVC.signInWithApple()
+                    }) {
+                        Text("Sign In with Apple")
                     }
                     Divider()
                     Button(action: {
