@@ -32,12 +32,20 @@ struct UserDefault<T> {
 final class AppSettings: ObservableObject {
     private enum SettingKey: String {
         case username
+        case emailNeedsConfirmation
     }
      
     let objectWillChange = ObservableObjectPublisher()
     
     @UserDefault(SettingKey.username.rawValue, defaultValue: "")
     var username: String {
+        willSet {
+            objectWillChange.send()
+        }
+    }
+    
+    @UserDefault(SettingKey.emailNeedsConfirmation.rawValue, defaultValue: "")
+    var emailNeedsConfirmation: String {
         willSet {
             objectWillChange.send()
         }
