@@ -88,14 +88,46 @@ extension SignInViewController {
             if let error = error {
                 print("error \(error)")
             } else if let tokens = tokens {
-                let claims = tokens.idToken?.claims
-                print("username? \(claims?["username"] as? String ?? "No username")")
-                print("cognito:username? \(claims?["cognito:username"] as? String ?? "No cognito:username")")
-                print("email? \(claims?["email"] as? String ?? "No email")")
-                print("name? \(claims?["name"] as? String ?? "No name")")
-                print("picture? \(claims?["picture"] as? String ?? "No picture")")
+//                print("tokens string = ", tokens.idToken?.tokenString)
+                let tokenStr = tokens.idToken?.tokenString
                 
-                closure(claims)
+                let tokenSplit = tokenStr!.split(separator: ".")
+                guard tokenSplit.count > 2 else {
+                    fatalError("Token is not valid base64 encoded string.")
+                }
+                                
+                let claims = tokenSplit[1]
+
+                let paddedLength = claims.count + (4 - (claims.count % 4)) % 4
+                var updatedClaims = claims.padding(toLength: paddedLength, withPad: "=", startingAt: 0)
+                
+                // This allows for special characters, such as names in Mandarin
+                // Replace _ with /
+                // Replace - with +
+                updatedClaims = updatedClaims.replacingOccurrences(of: "_", with: "/")
+                updatedClaims = updatedClaims.replacingOccurrences(of: "-", with: "+")
+                
+                let claimsData = Data.init(base64Encoded: updatedClaims, options: .ignoreUnknownCharacters)
+                
+                
+                guard claimsData != nil else {
+                    fatalError("Cannot get claims in `Data` form. Token is not valid base64 encoded string.")
+                    
+                }
+                let jsonObject = try? JSONSerialization.jsonObject(with: claimsData!, options: [])
+                guard jsonObject != nil else {
+                    fatalError("Cannot get claims in `Data` form. Token is not valid JSON string.")
+                }
+                
+                let jsonDict = jsonObject as? [String: AnyObject]
+                                
+                print("username? \(jsonDict?["username"] as? String ?? "No username")")
+                print("cognito:username? \(jsonDict?["cognito:username"] as? String ?? "No cognito:username")")
+                print("email? \(jsonDict?["email"] as? String ?? "No email")")
+                print("name? \(jsonDict?["name"] as? String ?? "No name")")
+                print("picture? \(jsonDict?["picture"] as? String ?? "No picture")")
+                
+                closure(jsonDict)
                 
             }
         }
